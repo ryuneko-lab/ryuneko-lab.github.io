@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>しごとハック道具箱</title>
+<meta name="description" content="竜と猫のしごとハック研究所が、仕事効率化・AI・便利ツールを紹介するページです。">
+<meta name="robots" content="noindex"><!-- 本公開時に外すか判断する（docs/公開手順書.md 参照） -->
+<style>
+  :root {
+    --bg: #f7f4ee;
+    --surface: #ffffff;
+    --ink: #22201c;
+    --muted: #6b665c;
+    --line: #e4ded2;
+    --accent: #2f6f5e;       /* 竜の緑 */
+    --accent-ink: #ffffff;
+    --cat: #d9822b;          /* 猫のオレンジ */
+    --pr-bg: #fff3d6;
+    --pr-ink: #7a4b00;
+    --ok: #2e7d4f;
+    --ng: #b3261e;
+    --warn-bg: #fdecea;
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #171714; --surface: #22221e; --ink: #f1ede4; --muted: #a8a295;
+      --line: #3a3832; --accent: #6cc3a8; --accent-ink: #10231d; --cat: #f0a45a;
+      --pr-bg: #3d3018; --pr-ink: #ffd88a; --ok: #7bd49c; --ng: #ff8a80; --warn-bg: #3b1f1c;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", "Meiryo", sans-serif;
+    font-size: 16px; line-height: 1.75; -webkit-text-size-adjust: 100%;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 16px 48px; }
+
+  /* 広告表記（ページ最上部・常時表示） */
+  .pr-notice {
+    background: var(--pr-bg); color: var(--pr-ink);
+    font-size: 13px; padding: 8px 16px; text-align: center; line-height: 1.5;
+  }
+
+  header { padding: 28px 0 8px; }
+  .lab { font-size: 13px; color: var(--muted); letter-spacing: .05em; margin: 0; }
+  h1 { font-size: 24px; line-height: 1.4; margin: 4px 0 12px; }
+  .talk { display: grid; gap: 8px; margin: 16px 0; }
+  .bubble { display: flex; gap: 10px; align-items: flex-start; }
+  .avatar {
+    flex: 0 0 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+    font-size: 22px; background: var(--surface); border: 2px solid var(--line);
+  }
+  .bubble.dragon .avatar { border-color: var(--accent); }
+  .bubble.cat .avatar { border-color: var(--cat); }
+  .bubble p {
+    margin: 0; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px; padding: 8px 12px; font-size: 15px;
+  }
+
+  /* 絞り込み */
+  .filters { display: flex; gap: 8px; overflow-x: auto; padding: 8px 0 12px; scrollbar-width: none; }
+  .filters::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: 0 0 auto; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+    border-radius: 999px; padding: 6px 14px; font-size: 14px; cursor: pointer; font-family: inherit;
+  }
+  .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+  /* カード */
+  .cards { display: grid; gap: 16px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 18px 16px;
+  }
+  .card-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .badge-pr {
+    background: var(--pr-bg); color: var(--pr-ink); font-size: 12px; font-weight: 700;
+    border-radius: 4px; padding: 1px 8px;
+  }
+  .cat-label { font-size: 12px; color: var(--muted); }
+  .card h2 { font-size: 19px; margin: 6px 0 4px; line-height: 1.4; }
+  .card h3 { font-size: 14px; margin: 14px 0 4px; color: var(--muted); }
+  .card ul { margin: 0; padding-left: 1.2em; }
+  .card .todo { color: var(--muted); font-style: normal; }
+  .episodes { font-size: 13px; color: var(--muted); margin-top: 10px; }
+
+  .cta {
+    display: block; width: 100%; margin-top: 16px; padding: 14px; text-align: center;
+    border-radius: 10px; font-weight: 700; font-size: 16px; text-decoration: none;
+    background: var(--accent); color: var(--accent-ink); border: none; font-family: inherit;
+  }
+  .cta[aria-disabled="true"] { background: var(--line); color: var(--muted); pointer-events: none; }
+  .cta-note { font-size: 12px; color: var(--muted); text-align: center; margin: 6px 0 0; }
+
+  /* 確認モード */
+  .check-panel { display: none; margin-top: 16px; border-top: 1px dashed var(--line); padding-top: 12px; }
+  body.check-mode .check-panel { display: block; }
+  .check-panel table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+  .check-panel th, .check-panel td { border-bottom: 1px solid var(--line); padding: 6px 4px; vertical-align: top; text-align: left; }
+  .check-panel th { width: 38%; color: var(--muted); font-weight: 400; }
+  .check-panel td { word-break: break-all; }
+  .unconfirmed { color: var(--ng); font-weight: 700; }
+  .checklist { list-style: none; padding: 0; margin: 10px 0 0; font-size: 13px; }
+  .checklist li { padding: 2px 0; }
+  .checklist .ok { color: var(--ok); }
+  .checklist .ng { color: var(--ng); }
+
+  .check-summary {
+    display: none; background: var(--warn-bg); border-radius: var(--radius);
+    padding: 12px 16px; margin: 8px 0 16px; font-size: 14px;
+  }
+  body.check-mode .check-summary { display: block; }
+  .check-summary strong { font-size: 16px; }
+
+  .mode-toggle {
+    position: fixed; right: 16px; bottom: 16px; z-index: 10;
+    background: var(--ink); color: var(--bg); border: none; border-radius: 999px;
+    padding: 10px 16px; font-size: 13px; font-family: inherit; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+  }
+
+  footer { margin-top: 40px; font-size: 13px; color: var(--muted); }
+  footer h2 { font-size: 15px; color: var(--ink); margin: 20px 0 4px; }
+  footer p { margin: 4px 0; }
+</style>
+</head>
+<body>
+
+<div class="pr-notice" role="note">【PR】当ページはアフィリエイト広告を利用しています</div>
+
+<div class="wrap">
+  <header>
+    <p class="lab">竜と猫のしごとハック研究所</p>
+    <h1>しごとハック道具箱</h1>
+    <div class="talk">
+      <div class="bubble cat"><span class="avatar" aria-hidden="true">🐱</span><p>動画で出てきたツール、どこで見られるの？</p></div>
+      <div class="bubble dragon"><span class="avatar" aria-hidden="true">🐉</span><p>ここにまとめたよ。無料で使える範囲や料金は変わることがあるから、申し込む前に公式サイトで確かめてね。</p></div>
+    </div>
+  </header>
+
+  <div class="check-summary" id="checkSummary" aria-live="polite"></div>
+
+  <nav class="filters" id="filters" aria-label="カテゴリで絞り込む"></nav>
+
+  <main class="cards" id="cards"></main>
+
+  <footer>
+    <h2>広告について</h2>
+    <p>当ページのリンクの一部はアフィリエイト広告（PR）です。リンクから申し込みがあった場合、運営者が報酬を受け取ることがあります。紹介するツールは、運営者が内容を確認したうえで選んでいます。</p>
+    <h2>掲載情報について</h2>
+    <p>料金・機能・キャンペーンなどは各ツールの確認日時点の情報です。最新の情報は必ず公式サイトでご確認ください。</p>
+    <h2>運営者</h2>
+    <p>竜と猫のしごとハック研究所</p>
+    <p>お問い合わせ：<a href="mailto:ryuneko.lab@gmail.com" style="color:inherit">ryuneko.lab@gmail.com</a></p>
+  </footer>
+</div>
+
+<button class="mode-toggle" id="modeToggle" type="button">確認モード</button>
+
+<script>
+/*
+ * 案件データ
+ * - tracking/案件管理_template.csv と同じ内容を保つこと
+ * - 提携状況・機能は、ASPの管理画面や公式サイトで確認した値だけを入れる
+ * - 報酬額・成果条件はこのファイルに書かない（公開ページのソースから誰でも読めるため）。案件管理のCSVだけで管理する
+ *   確認していない項目は "" のままにする（画面上では「未確認」と表示される）
+ * - status: "未申請" | "審査中" | "提携済" | "否認" | "終了"
+ * - 広告リンクのボタンが押せるのは、下の canPublish() の条件をすべて満たすときだけ
+ */
+const ITEMS = [
+  {
+    id: "C001",
+    name: "AIチャットツール（候補：ChatGPT／Claude／Gemini）",
+    category: "AI",
+    forWho: "メール返信の下書きや、会議メモの整理を時短したい人",
+    usage: ["メールの返信文の下書き", "会議メモを「決定事項・宿題・期限」に整理", "Excel関数の聞き方"],
+    features: [],              // 公式サイトで確認した機能だけを入れる
+    episodes: "第2・3・8〜11・25日目の動画",
+    asp: "", status: "未申請",
+    affiliateUrl: "", officialUrl: "",
+    snsAllowed: "", prohibited: "",
+    adLabel: "PR", featureSource: "", lastChecked: ""
+  },
+  {
+    id: "C002",
+    name: "スライド・デザイン作成ツール（候補：Gamma／Canva）",
+    category: "資料作成",
+    forWho: "資料やスライドの見た目づくりに時間がかかる人",
+    usage: ["スライドの構成案づくり", "テンプレートで資料を見やすく整える"],
+    features: [],
+    episodes: "第12・16日目の動画",
+    asp: "", status: "未申請",
+    affiliateUrl: "", officialUrl: "",
+    snsAllowed: "", prohibited: "",
+    adLabel: "PR", featureSource: "", lastChecked: ""
+  },
+  {
+    id: "C003",
+    name: "文字起こしツール（候補：Notta／CLOVA Note）",
+    category: "会議",
+    forWho: "会議や打ち合わせの録音を聞き直している人",
+    usage: ["録音を文字にする", "文字起こし結果をAIで要約する"],
+    features: [],
+    episodes: "第17・23日目の動画",
+    asp: "", status: "未申請",
+    affiliateUrl: "", officialUrl: "",
+    snsAllowed: "", prohibited: "",
+    adLabel: "PR", featureSource: "", lastChecked: ""
+  },
+  {
+    id: "C004",
+    name: "日程調整ツール（候補：TimeRex／Calendly）",
+    category: "会議",
+    forWho: "社外との日程調整のやり取りが多い人",
+    usage: ["候補日のURLを送って相手に選んでもらう"],
+    features: [],
+    episodes: "第18・23日目の動画",
+    asp: "", status: "未申請",
+    affiliateUrl: "", officialUrl: "",
+    snsAllowed: "", prohibited: "",
+    adLabel: "PR", featureSource: "", lastChecked: ""
+  },
+  {
+    id: "C005",
+    name: "自動化ツール（候補：Zapier／Make／Power Automate）",
+    category: "自動化",
+    forWho: "同じコピペ作業を毎日くり返している人",
+    usage: ["ツール同士をつないで転記作業を減らす"],
+    features: [],
+    episodes: "第26日目の動画",
+    asp: "", status: "未申請",
+    affiliateUrl: "", officialUrl: "",
+    snsAllowed: "", prohibited: "",
+    adLabel: "PR", featureSource: "", lastChecked: ""
+  }
+];
+
+// 広告リンクを出してよいかの判定。1つでも欠けていればボタンは「準備中」になる
+function checks(item) {
+  return [
+    { label: "提携状況が「提携済」", ok: item.status === "提携済" },
+    { label: "広告リンクURLが https で登録済み", ok: /^https:\/\//.test(item.affiliateUrl) },
+    { label: "広告表記（PRなど）が設定済み", ok: !!item.adLabel },
+    { label: "SNSでの宣伝可否を確認済み", ok: !!item.snsAllowed },
+    { label: "禁止事項を確認済み", ok: !!item.prohibited },
+    { label: "機能の確認元（公式URL）を記録済み", ok: !!item.featureSource },
+    { label: "最終確認日を記録済み", ok: !!item.lastChecked }
+  ];
+}
+function canPublish(item) { return checks(item).every(c => c.ok); }
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const val = s => s ? esc(s) : '<span class="unconfirmed">未確認</span>';
+
+let currentCat = "すべて";
+
+function renderFilters() {
+  const cats = ["すべて", ...new Set(ITEMS.map(i => i.category))];
+  document.getElementById("filters").innerHTML = cats.map(c =>
+    `<button class="chip" type="button" aria-pressed="${c === currentCat}" data-cat="${esc(c)}">${esc(c)}</button>`
+  ).join("");
+}
+
+function renderCards() {
+  const list = ITEMS.filter(i => currentCat === "すべて" || i.category === currentCat);
+  document.getElementById("cards").innerHTML = list.map(item => {
+    const publish = canPublish(item);
+    const features = item.features.length
+      ? `<ul>${item.features.map(f => `<li>${esc(f)}</li>`).join("")}</ul>`
+      : `<p class="todo">（公式サイトで確認後に記入）</p>`;
+    const button = publish
+      ? `<a class="cta" href="${esc(item.affiliateUrl)}" target="_blank" rel="sponsored noopener">公式サイトを見る（PR）</a>`
+      : `<a class="cta" aria-disabled="true" role="link">リンク準備中</a>`;
+    const checkRows = [
+      ["案件ID", esc(item.id)],
+      ["提携状況", esc(item.status)],
+      ["ASP・提携先", val(item.asp)],
+      ["広告リンクURL", val(item.affiliateUrl)],
+      ["公式サイトURL", val(item.officialUrl)],
+      ["SNSでの宣伝", val(item.snsAllowed)],
+      ["禁止事項", val(item.prohibited)],
+      ["広告表記", val(item.adLabel)],
+      ["機能の確認元", val(item.featureSource)],
+      ["最終確認日", val(item.lastChecked)]
+    ].map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join("");
+    const checkList = checks(item).map(c =>
+      `<li class="${c.ok ? "ok" : "ng"}">${c.ok ? "✅" : "⚠️"} ${esc(c.label)}</li>`
+    ).join("");
+
+    return `
+    <article class="card">
+      <div class="card-head">
+        <span class="badge-pr">${esc(item.adLabel || "PR")}</span>
+        <span class="cat-label">${esc(item.category)}</span>
+      </div>
+      <h2>${esc(item.name)}</h2>
+      <h3>こんな人に</h3>
+      <p style="margin:0">${esc(item.forWho)}</p>
+      <h3>研究所での使い方</h3>
+      <ul>${item.usage.map(u => `<li>${esc(u)}</li>`).join("")}</ul>
+      <h3>主な機能</h3>
+      ${features}
+      <p class="episodes">🎬 紹介した回：${esc(item.episodes)}</p>
+      ${button}
+      <p class="cta-note">料金・無料で使える範囲は公式サイトでご確認ください</p>
+      <section class="check-panel" aria-label="確認モードの情報">
+        <table>${checkRows}</table>
+        <ul class="checklist">${checkList}</ul>
+      </section>
+    </article>`;
+  }).join("");
+}
+
+function renderSummary() {
+  const ok = ITEMS.filter(canPublish).length;
+  document.getElementById("checkSummary").innerHTML =
+    `<strong>確認モード</strong><br>全${ITEMS.length}件のうち、リンクを出せる案件：${ok}件／要確認：${ITEMS.length - ok}件<br>` +
+    `<small>※ この表示は公開前の確認用です。公開時も一般の閲覧者には表示されません（URLの末尾に ?check=1 を付けると表示）。</small>`;
+}
+
+function setCheckMode(on) {
+  document.body.classList.toggle("check-mode", on);
+  document.getElementById("modeToggle").textContent = on ? "確認モードを閉じる" : "確認モード";
+}
+
+document.getElementById("filters").addEventListener("click", e => {
+  const btn = e.target.closest(".chip");
+  if (!btn) return;
+  currentCat = btn.dataset.cat;
+  renderFilters(); renderCards();
+});
+document.getElementById("modeToggle").addEventListener("click", () =>
+  setCheckMode(!document.body.classList.contains("check-mode")));
+
+// 確認モードのボタンは ?check=1 のときだけ表示する（公開時に閲覧者から見えないように）
+const params = new URLSearchParams(location.search);
+const isLocal = location.protocol === "file:";
+if (!params.has("check") && !isLocal) document.getElementById("modeToggle").hidden = true;
+setCheckMode(params.get("check") === "1");
+
+renderFilters(); renderCards(); renderSummary();
+</script>
+</body>
+</html>
