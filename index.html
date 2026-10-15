@@ -198,17 +198,29 @@ const ITEMS = [
     adLabel: "PR", featureSource: "", lastChecked: ""
   },
   {
-    id: "C003",
-    name: "文字起こしツール（候補：Notta／CLOVA Note）",
+    id: "C012",
+    name: "Plaud NotePin（AIボイスレコーダー）",
     category: "会議",
-    forWho: "会議や打ち合わせの録音を聞き直している人",
-    usage: ["録音を文字にする", "文字起こし結果をAIで要約する"],
-    features: [],
+    forWho: "会議・打ち合わせ・面談の内容を、あとでまとめるのに時間がかかっている人",
+    usage: [
+      "研究所では会議・打ち合わせ・面談で使用。録音すると文字起こしと要約まで出してくれる",
+      "録音しながらメモを追記できるので、聞きもれ・まとめもれが減った",
+      "会議の内容から日報の文まで作れるので、終業前の日報が早くなった",
+      "注意：研究所では電話の打ち合わせには使っていません"
+    ],
+    features: [
+      "録音中に、ハイライト・テキスト・画像を追加できる",
+      "話者ラベル付きの文字起こしと、テンプレートを選べる要約",
+      "Apple の「探す」機能に対応"
+    ],
     episodes: "第17・23日目の動画",
-    asp: "", status: "未申請",
-    affiliateUrl: "", officialUrl: "",
-    snsAllowed: "", prohibited: "",
-    adLabel: "PR", featureSource: "", lastChecked: ""
+    asp: "A8.net", status: "提携済",
+    affiliateUrl: "https://px.a8.net/svt/ejp?a8mat=4BEH5C+54KEB6+5J4W+BW8O2&a8ejpredirect=https%3A%2F%2Fjp.plaud.ai%2Fproducts%2Fnotepin",
+    impUrl: "https://www10.a8.net/0.gif?a8mat=4BEH5C+54KEB6+5J4W+BW8O2",
+    officialUrl: "https://jp.plaud.ai/products/notepin",
+    snsAllowed: "",   // 広告主（PLAUD）に Instagram での紹介方法を確認中。返事が来るまで空のまま（リンクは出ない）
+    prohibited: "公式サイトの人物画像を使わない／A8 の PR文を転載しない／機能・料金は公式で確認した内容だけ／効果を断定しない",
+    adLabel: "PR", featureSource: "https://jp.plaud.ai/products/notepin", lastChecked: "2026-10-15"
   },
   {
     id: "C004",
@@ -272,7 +284,7 @@ function renderCards() {
       ? `<ul>${item.features.map(f => `<li>${esc(f)}</li>`).join("")}</ul>`
       : `<p class="todo">（公式サイトで確認後に記入）</p>`;
     const button = publish
-      ? `<a class="cta" href="${esc(item.affiliateUrl)}" target="_blank" rel="sponsored noopener">公式サイトを見る（PR）</a>`
+      ? `<a class="cta" href="${esc(item.affiliateUrl)}" target="_blank" rel="sponsored noopener">公式サイトを見る（PR）</a>` + (item.impUrl ? `<img src="${esc(item.impUrl)}" width="1" height="1" alt="" style="position:absolute">` : "")
       : `<a class="cta" aria-disabled="true" role="link">リンク準備中</a>`;
     const checkRows = [
       ["案件ID", esc(item.id)],
