@@ -223,30 +223,42 @@ const ITEMS = [
     adLabel: "PR", featureSource: "https://jp.plaud.ai/products/notepin", lastChecked: "2026-10-15"
   },
   {
-    id: "C004",
-    name: "日程調整ツール（候補：TimeRex／Calendly）",
+    id: "C018",
+    name: "bookrun（日程調整ツール）",
+    notUsed: true,               // 研究所ではまだ使っていない。感想は書かない
     category: "会議",
     forWho: "社外との日程調整のやり取りが多い人",
-    usage: ["候補日のURLを送って相手に選んでもらう"],
-    features: [],
-    episodes: "第18・23日目の動画",
-    asp: "", status: "未申請",
-    affiliateUrl: "", officialUrl: "",
-    snsAllowed: "", prohibited: "",
-    adLabel: "PR", featureSource: "", lastChecked: ""
+    usage: ["空いている時間を相手に見せて、相手に選んでもらう"],
+    features: [
+      "Google カレンダー・Outlook 予定表と連携して、空き時間を表示",
+      "Web会議のURLを自動で発行し、前日・当日にリマインドメールを送れる",
+      "相手は bookrun のアカウントがなくても日程を選べる",
+      "無料でも使える（公式サイトの記載）"
+    ],
+    episodes: "第18日目の動画",
+    asp: "A8.net", status: "提携済",
+    affiliateUrl: "", officialUrl: "https://b-book.run/home",
+    snsAllowed: "", prohibited: "公式サイトの人物画像を使わない／A8 の PR文を転載しない／機能・料金は公式で確認した内容だけ",
+    adLabel: "PR", featureSource: "https://b-book.run/home", lastChecked: "2026-10-20"
   },
   {
-    id: "C005",
-    name: "自動化ツール（候補：Zapier／Make／Power Automate）",
-    category: "自動化",
-    forWho: "同じコピペ作業を毎日くり返している人",
-    usage: ["ツール同士をつないで転記作業を減らす"],
-    features: [],
-    episodes: "第26日目の動画",
-    asp: "", status: "未申請",
-    affiliateUrl: "", officialUrl: "",
-    snsAllowed: "", prohibited: "",
-    adLabel: "PR", featureSource: "", lastChecked: ""
+    id: "C017",
+    name: "Notta（AI文字起こしツール）",
+    notUsed: true,               // 研究所ではまだ使っていない。感想は書かない
+    category: "会議",
+    forWho: "オンライン会議の内容を、あとから文字で見返したい人",
+    usage: ["Zoom・Google Meet・Teams の会議を文字起こしして、要約とやることを出す"],
+    features: [
+      "Zoom・Google Meet・Microsoft Teams と連携",
+      "リアルタイムの文字起こしと、音声・動画ファイルからの文字起こし",
+      "AIで要約とアクションアイテムを作成",
+      "無料プランあり（月120分。公式サイトの記載）"
+    ],
+    episodes: "",
+    asp: "A8.net", status: "提携済",
+    affiliateUrl: "", officialUrl: "https://www.notta.ai/",
+    snsAllowed: "", prohibited: "A8 の PR文を転載しない／機能・料金は公式で確認した内容だけ",
+    adLabel: "PR", featureSource: "https://www.notta.ai/", lastChecked: "2026-10-20"
   }
 ];
 
@@ -311,11 +323,11 @@ function renderCards() {
       <h2>${esc(item.name)}</h2>
       <h3>こんな人に</h3>
       <p style="margin:0">${esc(item.forWho)}</p>
-      <h3>研究所での使い方</h3>
+      <h3>${item.notUsed ? "こんな使い方ができます（研究所では未使用）" : "研究所での使い方"}</h3>
       <ul>${item.usage.map(u => `<li>${esc(u)}</li>`).join("")}</ul>
       <h3>主な機能</h3>
       ${features}
-      <p class="episodes">🎬 紹介した回：${esc(item.episodes)}</p>
+      ${item.episodes ? `<p class="episodes">🎬 紹介した回：${esc(item.episodes)}</p>` : ""}
       ${button}
       <p class="cta-note">料金・無料で使える範囲は公式サイトでご確認ください</p>
       <section class="check-panel" aria-label="確認モードの情報">
